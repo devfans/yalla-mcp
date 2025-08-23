@@ -19,6 +19,21 @@ var (
 	port = dotenv.String("port", "8080")
 )
 
+func enableCORS(handler http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Access-Control-Allow-Origin", "*")
+		w.Header().Add("Access-Control-Allow-Credentials", "true")
+		w.Header().Add("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		w.Header().Add("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+
+		if r.Method == "OPTIONS" {
+			http.Error(w, "No Content", http.StatusNoContent)
+			return
+		}
+		handler.ServeHTTP(w, r)
+	})
+}
+
 func verifyAuth(ctx context.Context, token string) (*auth.TokenInfo, error) {
 	log.Debug("Token info", API_TOKEN, token)
 	if token == API_TOKEN {
@@ -92,7 +107,7 @@ func main() {
 	})
 	addr := fmt.Sprintf("%s:%s", host, port)
 	log.Info("Server will start", "url", addr)
-	if err := http.ListenAndServe(addr, auth.RequireBearerToken(verifyAuth, nil)(handler)); err != nil {
+	if err := http.ListenAndServe(addr, enableCORS(auth.RequireBearerToken(verifyAuth, nil)(handler))); err != nil {
 		log.Fatal("Failed to listen", "err", err)
 	}
 }
