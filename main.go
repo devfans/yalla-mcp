@@ -27,7 +27,6 @@ func enableCORS(handler http.Handler) http.Handler {
 		w.Header().Add("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 
 		if r.Method == "OPTIONS" {
-			http.Error(w, "No Content", http.StatusNoContent)
 			return
 		}
 		handler.ServeHTTP(w, r)
