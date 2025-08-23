@@ -49,6 +49,7 @@ const (
 var (
 	API_BASE_URL = "https://ai-echo.aqara.cn/echo/mcp"
 	API_KEY = dotenv.String("API_KEY")
+	API_TOKEN = dotenv.String("API_TOKEN")
 )
 
 func genSecret() string {

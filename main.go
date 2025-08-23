@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/devfans/envconf/dotenv"
 	"github.com/devfans/golang/log"
+	"github.com/modelcontextprotocol/go-sdk/auth"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
 
@@ -16,6 +18,16 @@ var (
 	host = dotenv.String("host", "127.0.0.1")
 	port = dotenv.String("port", "8080")
 )
+
+func verifyAuth(ctx context.Context, token string) (*auth.TokenInfo, error) {
+	log.Debug("Token info", API_TOKEN, token)
+	if token == API_TOKEN {
+		return &auth.TokenInfo{
+			Expiration: time.Now().Add(time.Hour * 24 * 365 * 10),
+		}, nil
+	}
+	return nil, errors.New("invalid api key")
+}
 
 func simpleResult(args ...string) *mcp.CallToolResult {
 	contents := make([]mcp.Content, len(args))
@@ -70,7 +82,6 @@ func main() {
 	// Create a server with a single tool that says "Hi".
 	server := mcp.NewServer(&mcp.Implementation{Name: "yalla"}, nil)
 	server.AddReceivingMiddleware(loggingMiddleware)
-
 	registerTools(server)
 
 	// server.Run runs the server on the given transport.
@@ -81,7 +92,7 @@ func main() {
 	})
 	addr := fmt.Sprintf("%s:%s", host, port)
 	log.Info("Server will start", "url", addr)
-	if err := http.ListenAndServe(addr, handler); err != nil {
+	if err := http.ListenAndServe(addr, auth.RequireBearerToken(verifyAuth, nil)(handler)); err != nil {
 		log.Fatal("Failed to listen", "err", err)
 	}
 }
