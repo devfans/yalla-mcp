@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/devfans/envconf/dotenv"
-	_ "github.com/devfans/envconf/dotenv"
 	"github.com/devfans/golang/log"
 	"github.com/modelcontextprotocol/go-sdk/mcp"
 )
