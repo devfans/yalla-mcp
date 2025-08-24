@@ -25,7 +25,7 @@ func enableCORS(handler http.Handler) http.Handler {
 		w.Header().Add("Access-Control-Allow-Credentials", "true")
 		w.Header().Add("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		w.Header().Add("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-
+		log.Debug(r.Method, r.URL.RawPath)
 		if r.Method == "OPTIONS" {
 			return
 		}

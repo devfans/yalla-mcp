@@ -21,8 +21,8 @@ import (
 // Global variables
 var (
 	DeviceID = genDeviceID()
-		AppID = genAppID()
-		AppSecret = genSecret()
+	AppID = genAppID()
+	AppSecret = genSecret()
 )
 
 
@@ -206,7 +206,8 @@ func HandleRunScenesHandler(ctx context.Context, req *mcp.CallToolRequest, args 
 func registerTools(server *mcp.Server) {
 	// mcp.AddTool(server, list_home, HandleListHome);
 	// mcp.AddTool(server, switch_home, HandleSwitchHome)
-	SwitchHome("我的家")
+	a, b := SwitchHome("我的家")
+	log.Info("Switching home", a, b)
 	mcp.AddTool(server, list_scenes, HandleListScenesHandler)
 	mcp.AddTool(server, run_scenes, HandleRunScenesHandler)
 }
