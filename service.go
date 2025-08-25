@@ -192,13 +192,13 @@ Returns:
   Device control button push result message.`,
 }
 type argScenes struct {
-	Buttons []int `json:"buttons" jsonschema:"the control buttons to push"`
+	Button int `json:"button" jsonschema:"the control button to push, exactly one button should be provided"`
 }
 // GetScenesHandler handles querying available scenes.
 func HandleRunScenesHandler(ctx context.Context, req *mcp.CallToolRequest, args argScenes) (*mcp.CallToolResult, any, error) {
 	log.Info("[INFO] [HandleRunScenesHandler] Request parameters: %+v", args)
-	log.Info("[INFO] [HandleRunScenesHandler] Calling SwitchHome, homeName: %s", args.Buttons)
-	result := RunScenes(args.Buttons)
+	log.Info("[INFO] [HandleRunScenesHandler] Calling SwitchHome, homeName: %s", args.Button)
+	result := RunScenes([]int{args.Button})
 	log.Info("[INFO] [HandleRunScenesHandler] RunScene result: %v", result)
 	return simpleResult(result), nil, nil
 }
