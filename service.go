@@ -56,17 +56,17 @@ func genSecret() string {
 	url := API_BASE_URL + "/secret"
 	result, err := httpGet[map[string]string](url, map[string]string{"key": AppID})
 	if err != nil {
-		log.Error("[ERROR] Failed to generate secret: %v", err)
+		log.Error("Failed to generate secret", "err", err)
 		return ""
 	}
 	if result == nil {
-		log.Warn("[WARN] No secret returned from server")
+		log.Warn("No secret returned from server")
 		return ""
 	}
 	if v, ok := (*result)["secret_key"]; ok {
 		return v
 	}
-	log.Warn("[WARN] Secret key not found in response")
+	log.Warn("Secret key not found in response")
 	return ""
 }
 
@@ -126,13 +126,13 @@ Comma-separated list of home names; returns an empty string or specific message 
 }
 
 func HandleListHome(ctx context.Context, req *mcp.CallToolRequest, args struct{}) (*mcp.CallToolResult, any, error) {
-	log.Info("[INFO] [GetHomesHandler] Request parameters: %+v", args)
+	log.Info("GetHomesHandler request", "args", args)
 	homes, message := GetHomes()
 	if message != "" {
-		log.Info("[ERROR] [GetHomesHandler] GetHomes error: %v", message)
+		log.Error("GetHomes failed", "message", message)
 		return simpleResult(message), nil, nil
 	}
-	log.Info("[INFO] [GetHomesHandler] Home list: %+v", homes)
+	log.Info("Home list retrieved", "homes", homes)
 	if len(homes) == 0 {
 		return simpleResult("No homes found."), nil, nil
 	}
@@ -152,18 +152,18 @@ Switch result message.
 }
 
 func HandleSwitchHome(ctx context.Context, req *mcp.CallToolRequest, args args) (*mcp.CallToolResult, any, error) {
-	log.Info("[INFO] [SwitchHomeHandler] Request parameters: %+v", args)
-	log.Info("[INFO] [SwitchHomeHandler] Calling SwitchHome, homeName: %s", args.Name)
+	log.Info("SwitchHomeHandler request", "args", args)
+	log.Info("Switching home", "homeName", args.Name)
 	success, message := SwitchHome(args.Name)
 	if !success {
-		log.Error("[ERROR] [SwitchHomeHandler] Home switch failed: %v", message)
+		log.Error("Home switch failed", "message", message)
 		// Ensure a message is always returned on failure.
 		if message == "" {
 			message = "Home switch failed due to an unknown error."
 		}
 		return simpleResult(message), nil, nil
 	}
-	log.Info("[INFO] [SwitchHomeHandler] Switched to home: %s", args.Name)
+	log.Info("Switched to home", "homeName", args.Name)
 	return simpleResult(fmt.Sprintf("Successfully switched to home \"%s\"", args.Name)), nil, nil
 }
 
@@ -176,10 +176,10 @@ Returns:
 
 // GetScenesHandler handles querying available scenes.
 func HandleListScenesHandler(ctx context.Context, req *mcp.CallToolRequest, args struct{}) (*mcp.CallToolResult, any, error) {
-	log.Info("[INFO] [GetScenesHandler] Request parameters: %+v", req.Params.Arguments)
+	log.Info("GetScenesHandler request", "args", req.Params.Arguments)
 	result := GetScenes([]string{})
 	result = strings.ReplaceAll(result, "scene", "device button")
-	log.Info("[INFO] [GetScenesHandler] GetScenes result: %v", result)
+	log.Info("GetScenes result", "result", result)
 	return simpleResult(result), nil, nil
 }
 
@@ -194,10 +194,10 @@ type argScenes struct {
 }
 // GetScenesHandler handles querying available scenes.
 func HandleRunScenesHandler(ctx context.Context, req *mcp.CallToolRequest, args argScenes) (*mcp.CallToolResult, any, error) {
-	log.Info("[INFO] [HandleRunScenesHandler] Request parameters: %+v", args)
-	log.Info("[INFO] [HandleRunScenesHandler] Calling SwitchHome, homeName: %s", args.Button)
+	log.Info("HandleRunScenesHandler request", "args", args)
+	log.Info("Running scene", "button", args.Button)
 	result := RunScenes([]int{args.Button})
-	log.Info("[INFO] [HandleRunScenesHandler] RunScene result: %v", result)
+	log.Info("RunScene result", "result", result)
 	return simpleResult(result), nil, nil
 }
 

@@ -25,7 +25,7 @@ func enableCORS(handler http.Handler) http.Handler {
 		w.Header().Add("Access-Control-Allow-Credentials", "true")
 		w.Header().Add("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
 		w.Header().Add("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		log.Debug(r.Method, r.URL.RawPath)
+		log.Debug("HTTP request", "method", r.Method, "path", r.URL.RawPath)
 		if r.Method == "OPTIONS" {
 			return
 		}
@@ -34,7 +34,7 @@ func enableCORS(handler http.Handler) http.Handler {
 }
 
 func verifyAuth(ctx context.Context, token string) (*auth.TokenInfo, error) {
-	log.Debug("Token info", API_TOKEN, token)
+	log.Debug("Token verification request", token, API_TOKEN)
 	if token == API_TOKEN {
 		return &auth.TokenInfo{
 			Expiration: time.Now().Add(time.Hour * 24 * 365 * 10),

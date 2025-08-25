@@ -356,13 +356,13 @@ func httpPost[T any](url string, data any, headers map[string]string) (*T, strin
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Info("[ERROR] API call failed: %s, Status code: %d, Response: %s\n", url, resp.StatusCode, string(body))
+		log.Error("API call failed", "url", url, "status_code", resp.StatusCode, "response", string(body))
 		return nil, fmt.Sprintf("API call failed. status code: %d", resp.StatusCode)
 	}
 
 	var result = RespBody[T]{}
 	if err := json.Unmarshal(body, &result); err != nil {
-		log.Info("[ERROR] JSON parsing failed: %v, Response: %s\n", err, string(body))
+		log.Error("JSON parsing failed", "err", err, "response", string(body))
 		if result.Message != "" {
 			return nil, result.Message
 		}
@@ -372,7 +372,7 @@ func httpPost[T any](url string, data any, headers map[string]string) (*T, strin
 		return &result.Result, ""
 	}
 
-	log.Info("[WARN] Request error: (%d), Details: %s\n", result.Code, result.MsgDetails)
+	log.Warn("Request error", "code", result.Code, "details", result.MsgDetails)
 	if result.MsgDetails != "" {
 		return nil, result.MsgDetails
 	}
@@ -383,7 +383,7 @@ func httpPost[T any](url string, data any, headers map[string]string) (*T, strin
 func httpGet[T any](baseURL string, queryParams map[string]string) (*T, error) {
 	parsedURL, err := url.Parse(baseURL)
 	if err != nil {
-		log.Info("[ERROR] Failed to parse base URL '%s': %v\n", baseURL, err)
+		log.Error("Failed to parse base URL", "url", baseURL, "err", err)
 		return nil, fmt.Errorf("failed to parse: %w", err)
 	}
 
@@ -398,7 +398,7 @@ func httpGet[T any](baseURL string, queryParams map[string]string) (*T, error) {
 	finalURL := parsedURL.String()
 	resp, err := http.Get(finalURL)
 	if err != nil {
-		log.Info("[ERROR] Failed to send GET request to '%s': %v\n", finalURL, err)
+		log.Error("Failed to send GET request", "url", finalURL, "err", err)
 		return nil, fmt.Errorf("failed to send GET: %w", err)
 	}
 	defer resp.Body.Close()
@@ -409,14 +409,14 @@ func httpGet[T any](baseURL string, queryParams map[string]string) (*T, error) {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Info("[ERROR] Failed to read response body from '%s': %v\n", finalURL, err)
+		log.Error("Failed to read response body", "url", finalURL, "err", err)
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
 	var result T
 
 	if err := json.Unmarshal(body, &result); err != nil {
-		log.Info("[ERROR] JSON parsing failed: %v, Response: %s\n", err, string(body))
+		log.Error("JSON parsing failed", "err", err, "response", string(body))
 		return nil, fmt.Errorf("the received data is not in a valid JSON format. please try again later")
 	}
 	return &result, nil
@@ -445,7 +445,7 @@ func generateNonce(length int) string {
 	b := make([]byte, length)
 	_, err := rand.Read(b)
 	if err != nil {
-		log.Info("[ERROR] Failed to generate nonce: %v\n", err)
+		log.Error("Failed to generate nonce", "err", err)
 	}
 	return hex.EncodeToString(b)
 }
