@@ -169,17 +169,15 @@ func HandleSwitchHome(ctx context.Context, req *mcp.CallToolRequest, args args) 
 
 var list_scenes = &mcp.Tool{
 	Name:        "list_device_control_buttons",
-	Description: `Get all device control buttons under the user's home, or query control buttons in a specified room.
+	Description: `Get all device control buttons under the user's home.
 Returns:
   Control buttons information in Markdown format` + NOTES,
 }
-type argPositions struct {
-	Positions []string `json:"positions" jsonschema:"the positions"`
-}
+
 // GetScenesHandler handles querying available scenes.
-func HandleListScenesHandler(ctx context.Context, req *mcp.CallToolRequest, args argPositions) (*mcp.CallToolResult, any, error) {
+func HandleListScenesHandler(ctx context.Context, req *mcp.CallToolRequest, args struct{}) (*mcp.CallToolResult, any, error) {
 	log.Info("[INFO] [GetScenesHandler] Request parameters: %+v", req.Params.Arguments)
-	result := GetScenes(args.Positions)
+	result := GetScenes([]string{})
 	result = strings.ReplaceAll(result, "scene", "device button")
 	log.Info("[INFO] [GetScenesHandler] GetScenes result: %v", result)
 	return simpleResult(result), nil, nil
