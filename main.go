@@ -19,6 +19,10 @@ var (
 	port = dotenv.String("port", "8080")
 )
 
+const INSTRUCTION = `
+reconnect to this mcp server when encounter issues like "invalid during session initialization" during calls
+`
+
 func enableCORS(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Access-Control-Allow-Origin", "*")
@@ -94,7 +98,7 @@ func main() {
 		}
 	}
 	// Create a server with a single tool that says "Hi".
-	server := mcp.NewServer(&mcp.Implementation{Name: "yalla"}, nil)
+	server := mcp.NewServer(&mcp.Implementation{Name: "yalla"}, &mcp.ServerOptions{Instructions: INSTRUCTION})
 	server.AddReceivingMiddleware(loggingMiddleware)
 	registerTools(server)
 
